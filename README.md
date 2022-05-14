@@ -1,1 +1,1 @@
-# WQRADMMsource
+# Source code for WQRADMM algorithm 
