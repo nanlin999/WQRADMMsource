@@ -1,3 +1,8 @@
+###source the cpp code
+install.packages("Rcpp")
+library(Rcpp)
+Rcpp::sourceCpp(" ") ###please put the code directory (i.e., the directory of WQRADMM.cpp) into the double quotation marks
+
 ###function for generating the correlation matrix (AR(1) or exchangeable)
 gcov = function(p, rho, type){
   if(type == "exchangeable"){
