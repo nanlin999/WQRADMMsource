@@ -38,31 +38,34 @@ X = X%*%chol(cov_X)
 for(i in 1:d){
   X[,i] = pnorm(X[,i])
 }
-beta = rnorm(p)
-cov_e = gcov(n, rho_e, "ar1")
+set.seed(1000)
 e = matrix(rt(N*n, 3), N, n)
+cov_e = gcov(n, rho_e, "ar1")
 e = as.vector(t(e%*%chol(cov_e)))
 sigma = 0.5
 e = sigma*e
-Y = X%*%beta+apply(X[,1:d]*e/d, 1, sum)
-beta_true = c(quantile(e/d, tau)+beta[1:d], beta[(d+1):p])
+beta0 = rnorm(1)
+beta = rnorm(p)
+Y = beta0+X%*%beta+apply(X[,1:d]*e/d, 1, sum)
+beta_true = c(beta0, quantile(e/d, tau)+beta[1:d], beta[(d+1):p])
 
-###calculate the traditional quantile regression estimator
-CQR = WQRADMM(X, Y, rep, tau, FALSE, "CQR")
-beta_CQR = CQR$Estimation_CQR
-AE_CQR = sum(abs(beta_CQR-beta_true))
-Iteration_CQR = CQR$Iteration_CQR
-Time_CQR = CQR$Time_CQR
-
-###calculate the weighted quantile regression estimator
-WQR = WQRADMM(X, Y, rep, tau, FALSE, "WQR")
+###calculate the WQR estimator by WQR-ADMM
+WQR = WQRADMMCPP(X, Y, rep, tau, TRUE, "WQR")
 beta_WQR = WQR$Estimation_WQR
 AE_WQR = sum(abs(beta_WQR-beta_true))
-Iteration_WQR = WQR$Iteration_WQR
 Time_WQR = WQR$Time_WQR
-Time_total = WQR$Time_total
+Time_WQRADMM = WQR$Time_total
+
+###calculate the WQR estimator by parallel WQR-ADMM
+k = 10         ##number of partitions
+paraWQR = paraWQRADMMCPP(X, Y, k, rep, tau, TRUE, "WQR")
+beta_paraWQR = paraWQR$Estimation_WQR
+AE_paraWQR = sum(abs(beta_paraWQR-beta_true))
+Time_paraWQR = paraWQR$Time_WQR
+Time_paraWQRADMM = paraWQR$Time_total
 
 ###output the results
 AE_WQR
-Time_WQR
-Time_total
+Time_WQRADMM
+AE_paraWQR
+Time_paraWQRADMM
