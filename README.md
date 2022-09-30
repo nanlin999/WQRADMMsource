@@ -1,4 +1,4 @@
-# Source code for WQRADMM algorithm 
+# Source code for WQR-ADMM and parallel WQR-ADMM algorithms 
 
 It can be used to reproduce the simulation studies in the following paper:
 
